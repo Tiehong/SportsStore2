@@ -1,0 +1,7 @@
+
+.vs/
+SportsStore/bin/
+SportsStore/obj/
+SportsStore/wwwroot/lib/
+SportsStore.Tests/bin/
+SportsStore.Tests/obj/
