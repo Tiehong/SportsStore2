@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SportsStore.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace SportsStore
 {
@@ -24,6 +25,14 @@ namespace SportsStore
             var config = Configuration["Data:SportsStoreProducts:ConnectionStrings"];
             //  config = Configuration["Data:test"];
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(config));
+
+            // Use config here will cause error with Products database, don't know why!!
+            var config2 = Configuration["Data:SportsStoreIdentity:ConnectionStrings"];
+            services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(config2));
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppIdentityDbContext>()
+                .AddDefaultTokenProviders();
+
             services.AddTransient<IProductRepository, EFProductRepository>();
             services.AddTransient<IOrderRepository, EFOrderRepository>();
             services.AddScoped<Cart>(sp => SessionCart.GetCart(sp));
@@ -40,6 +49,7 @@ namespace SportsStore
             app.UseStatusCodePages();
             app.UseStaticFiles();
             app.UseSession();
+            app.UseAuthentication();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
@@ -71,6 +81,7 @@ namespace SportsStore
                         );
             });
             //    SeedData.EnsurePopulated(app);
+            //IdentitySeedData.EnsurePopulated(app);
         }
     }
 }

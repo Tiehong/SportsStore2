@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SportsStore.Models;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
-namespace SportsStore.Controllers {
+namespace SportsStore.Controllers
+{
 
-    public class OrderController : Controller {
+    public class OrderController : Controller
+    {
         private IOrderRepository repository;
         private Cart cart;
 
@@ -17,22 +20,45 @@ namespace SportsStore.Controllers {
         public ViewResult Checkout() => View(new Order());
 
         [HttpPost]
-        public IActionResult Checkout(Order order) {
-            if (cart.Lines.Count() == 0) {
+        public IActionResult Checkout(Order order)
+        {
+            if (cart.Lines.Count() == 0)
+            {
                 ModelState.AddModelError("", "Sorry, your cart is empty!");
             }
-            if (ModelState.IsValid) {
+            if (ModelState.IsValid)
+            {
                 order.Lines = cart.Lines.ToArray();
                 repository.SaveOrder(order);
                 return RedirectToAction(nameof(Completed));
-            } else {
+            }
+            else
+            {
                 return View(order);
             }
         }
 
-        public ViewResult Completed() {
+        public ViewResult Completed()
+        {
             cart.Clear();
             return View();
+        }
+
+        [Authorize]
+        public ViewResult List() => View(repository.Orders.Where(o => !o.Shipped));
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult MarkShipped(int orderID)
+        {
+            Order order = repository.Orders
+                .FirstOrDefault(o => o.OrderID == orderID);
+            if (order != null)
+            {
+                order.Shipped = true;
+                repository.SaveOrder(order);
+            }
+            return RedirectToAction(nameof(List));
         }
     }
 }

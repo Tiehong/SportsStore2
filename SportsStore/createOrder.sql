@@ -11,6 +11,7 @@ CREATE TABLE [dbo].[Orders] (
     [Zip]           NVARCHAR (10)   NOT NULL,
     [Country]        NVARCHAR (50)   NOT NULL,
     [Giftwrap]      INT,
+	[Shipped]	    INT,
     PRIMARY KEY CLUSTERED ([OrderID] ASC)
 );
 
