@@ -39,7 +39,9 @@ namespace SportsStore.Migrations
                     Category = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
-                    Price = table.Column<decimal>(nullable: false)
+                    Price = table.Column<decimal>(nullable: false),
+                    ImageData=table.Column<byte[]>(nullable:true),
+                    ImageMimeType = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

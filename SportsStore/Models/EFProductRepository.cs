@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace SportsStore.Models {
+namespace SportsStore.Models
+{
 
-    public class EFProductRepository : IProductRepository {
+    public class EFProductRepository : IProductRepository
+    {
         private ApplicationDbContext context;
 
-        public EFProductRepository(ApplicationDbContext ctx) {
+        public EFProductRepository(ApplicationDbContext ctx)
+        {
             context = ctx;
         }
 
@@ -15,7 +18,7 @@ namespace SportsStore.Models {
         public Product DeleteProduct(int productID)
         {
             Product dbEntry = context.Products.FirstOrDefault(p => p.ProductID == productID);
-            if(dbEntry !=null)
+            if (dbEntry != null)
             {
                 context.Products.Remove(dbEntry);
                 context.SaveChanges();
@@ -32,12 +35,14 @@ namespace SportsStore.Models {
             else
             {
                 Product dbEntry = context.Products.FirstOrDefault(p => p.ProductID == product.ProductID);
-                if(dbEntry!=null)
+                if (dbEntry != null)
                 {
                     dbEntry.Name = product.Name;
                     dbEntry.Description = product.Description;
                     dbEntry.Category = product.Category;
                     dbEntry.Price = product.Price;
+                    dbEntry.ImageData = product.ImageData;
+                    dbEntry.ImageMimeType = product.ImageMimeType;
                 }
             }
             context.SaveChanges();

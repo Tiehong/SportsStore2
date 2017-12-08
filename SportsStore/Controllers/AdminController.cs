@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SportsStore.Models;
+using Microsoft.AspNetCore.Http;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 
@@ -21,10 +22,17 @@ namespace SportsStore.Controllers {
 
         
         [HttpPost]
-        public IActionResult Edit(Product product)
+        public IActionResult Edit(Product product, IFormFile image = null)
         {
             if (ModelState.IsValid)
             {
+                if (image != null)
+                {
+                    int length = (int)image.Length;
+                    product.ImageMimeType = image.ContentType;
+                    product.ImageData = new byte[length];
+                    image.OpenReadStream().Read(product.ImageData, 0, length);
+                }
                 repository.SaveProduct(product);
                 TempData["message"] = $"{product.Name} has been saved";
                 return RedirectToAction("Index");

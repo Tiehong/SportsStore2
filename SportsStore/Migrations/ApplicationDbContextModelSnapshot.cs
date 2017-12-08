@@ -85,6 +85,8 @@ namespace SportsStore.Migrations
                     b.Property<string>("Name");
 
                     b.Property<decimal>("Price");
+                    b.Property<byte[]>("ImageData");
+                    b.Property<string>("ImageMimeType");
 
                     b.HasKey("ProductID");
 
