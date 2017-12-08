@@ -6,6 +6,7 @@ using SportsStore.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using System;
 
 namespace SportsStore
 {
@@ -18,6 +19,46 @@ namespace SportsStore
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            addAzureDBcontext(services);
+            //addDBcontext(services);
+
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppIdentityDbContext>()
+                .AddDefaultTokenProviders();
+
+            addRepository(services);
+            //addFakeRepository(services);
+
+            services.AddScoped<Cart>(sp => SessionCart.GetCart(sp));
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddMvc();
+            services.AddMemoryCache();
+            services.AddSession();
+        }
+
+        private void addRepository(IServiceCollection services)
+        {
+            services.AddTransient<IProductRepository, EFProductRepository>();
+            services.AddTransient<IOrderRepository, EFOrderRepository>();
+        }
+        private void addFakeRepository(IServiceCollection services)
+        {
+            services.AddTransient<IProductRepository, FakeProductRepository>();
+            services.AddTransient<IOrderRepository, FakeOrderRepository>();
+        }
+
+        private void addAzureDBcontext(IServiceCollection services)
+        {
+            var config = Configuration["Data:Azure:Products"];
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(config));
+
+            // Use config here will cause error with Products database, don't know why!!
+            var config2 = Configuration["Data:Azure:Identity"];
+            services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(config2));
+        }
+
+        private void addDBcontext(IServiceCollection services)
+        {
             var config = Configuration["Data:SportsStoreProducts:ConnectionStrings"];
             //  config = Configuration["Data:test"];
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(config));
@@ -25,17 +66,6 @@ namespace SportsStore
             // Use config here will cause error with Products database, don't know why!!
             var config2 = Configuration["Data:SportsStoreIdentity:ConnectionStrings"];
             services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(config2));
-            services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<AppIdentityDbContext>()
-                .AddDefaultTokenProviders();
-
-            services.AddTransient<IProductRepository, EFProductRepository>();
-            services.AddTransient<IOrderRepository, EFOrderRepository>();
-            services.AddScoped<Cart>(sp => SessionCart.GetCart(sp));
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddMvc();
-            services.AddMemoryCache();
-            services.AddSession();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -84,7 +114,7 @@ namespace SportsStore
                     template: "{controller=Product}/{action=List}/{id?}"
                         );
             });
-            //    SeedData.EnsurePopulated(app);
+            //SeedData.EnsurePopulated(app);
             //IdentitySeedData.EnsurePopulated(app);
         }
     }
